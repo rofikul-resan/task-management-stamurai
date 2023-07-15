@@ -1,10 +1,17 @@
 "use client";
-import { string } from "mobx-state-tree/dist/internal";
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 
-export default function Home() {
-  const [tasks, setTasks] = useState<[]>([]);
+interface Task {
+  name: string;
+  description: string;
+  id: string;
+  status: string;
+}
+
+export default function Home(): JSX.Element {
+  const [tasks, setTasks] = useState<Task[]>([]);
+
   useEffect(() => {
     const taskData = localStorage.getItem("taskMG");
     if (!taskData) {
@@ -15,14 +22,14 @@ export default function Home() {
   }, []);
 
   const handleUpdateStatus = (status: string, id: string) => {
-    const targetTask = tasks.find((task) => task.id === id);
-    const remain = tasks.filter((task) => task.id !== id);
-    targetTask.status = status;
-    const updateAllTasks = [...remain, targetTask];
-    updateAllTasks.sort((a, b) => a.id - b.id);
-    setTasks(updateAllTasks);
-    localStorage.setItem("taskMG", JSON.stringify(updateAllTasks));
-    console.log(targetTask, remain);
+    const updatedTasks = tasks.map((task) => {
+      if (task.id === id) {
+        return { ...task, status };
+      }
+      return task;
+    });
+    setTasks(updatedTasks);
+    localStorage.setItem("taskMG", JSON.stringify(updatedTasks));
   };
 
   const deleteTask = (id: string) => {
@@ -43,52 +50,46 @@ export default function Home() {
       }
     });
   };
+
   return (
     <main>
       <div className="grid grid-cols-3 gap-5 my-6 md:w-10/12 mx-auto">
-        {tasks.map(
-          (task: {
-            name: string;
-            description: string;
-            id: string;
-            status: string;
-          }) => (
-            <div key={task.id} className="card p-6 bg-base-300 space-y-4">
-              <h2 className="text-xl font-semibold">Task Name : {task.name}</h2>
-              <p>
-                Status : <span className="font-semibold">{task.status}</span>
-              </p>
-              <p>Description : {task.description}</p>
-              {task.status === "toDo" && (
-                <button
-                  className="btn btn-primary"
-                  onClick={() => handleUpdateStatus("progress", task.id)}
-                >
-                  In Progress
-                </button>
-              )}
-              {task.status === "progress" && (
-                <button
-                  className="btn btn-primary"
-                  onClick={() => handleUpdateStatus("completed", task.id)}
-                >
-                  Complete
-                </button>
-              )}
-              {task.status === "completed" && (
-                <button className="btn btn-primary" disabled>
-                  Completed
-                </button>
-              )}
+        {tasks.map((task) => (
+          <div key={task.id} className="card p-6 bg-base-300 space-y-4">
+            <h2 className="text-xl font-semibold">Task Name: {task.name}</h2>
+            <p>
+              Status: <span className="font-semibold">{task.status}</span>
+            </p>
+            <p>Description: {task.description}</p>
+            {task.status === "toDo" && (
               <button
-                onClick={() => deleteTask(task.id)}
-                className="btn btn-warning"
+                className="btn btn-primary"
+                onClick={() => handleUpdateStatus("progress", task.id)}
               >
-                Delete
+                In Progress
               </button>
-            </div>
-          )
-        )}
+            )}
+            {task.status === "progress" && (
+              <button
+                className="btn btn-primary"
+                onClick={() => handleUpdateStatus("completed", task.id)}
+              >
+                Complete
+              </button>
+            )}
+            {task.status === "completed" && (
+              <button className="btn btn-primary" disabled>
+                Completed
+              </button>
+            )}
+            <button
+              onClick={() => deleteTask(task.id)}
+              className="btn btn-warning"
+            >
+              Delete
+            </button>
+          </div>
+        ))}
       </div>
     </main>
   );

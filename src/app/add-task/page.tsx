@@ -3,29 +3,40 @@ import React, { useState } from "react";
 import { Puff, RotatingLines } from "react-loader-spinner";
 import TaskStore from "../store/taskStore";
 import { getSnapshot } from "mobx-state-tree";
+import Swal from "sweetalert2";
 
-const page = () => {
+const page: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
-  const handleAddTask = (event: React.SyntheticEvent) => {
+
+  const handleAddTask = (event: React.FormEvent<HTMLFormElement>) => {
     setLoading(true);
     const taskData = localStorage.getItem("taskMG");
     if (!taskData) {
       localStorage.setItem("taskMG", JSON.stringify([]));
     }
-    const preTask: string = localStorage.getItem("taskMG");
+    const preTask = localStorage.getItem("taskMG");
     event.preventDefault();
-    const form = event.target;
-    const name: string = form.name.value;
-    const status: string = form.status.value;
-    const description: string = form.description.value;
+    const form = event.target as HTMLFormElement;
+    const nameInput = form.elements.namedItem("name") as HTMLInputElement;
+    const name: string = nameInput.value;
+    const statusInput = form.elements.namedItem("status") as HTMLSelectElement;
+    const status: string = statusInput.value;
+    const descriptionInput = form.elements.namedItem(
+      "description"
+    ) as HTMLTextAreaElement;
+    const description: string = descriptionInput.value;
     const newTask = { name, status, description, id: String(Date.now()) };
-    const preTaskArr = JSON.parse(preTask);
+    const preTaskArr = JSON.parse(preTask || "[]");
     const alltask = [...preTaskArr, newTask];
 
     localStorage.setItem("taskMG", JSON.stringify(alltask));
     setTimeout(() => {
       setLoading(false);
       form.reset();
+      Swal.fire({
+        icon: "success",
+        title: "Task add Successful",
+      });
     }, 500);
   };
   return (
