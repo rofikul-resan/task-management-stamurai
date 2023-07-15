@@ -1,6 +1,7 @@
 "use client";
 import { string } from "mobx-state-tree/dist/internal";
 import { useEffect, useState } from "react";
+import Swal from "sweetalert2";
 
 export default function Home() {
   const [tasks, setTasks] = useState<[]>([]);
@@ -25,11 +26,22 @@ export default function Home() {
   };
 
   const deleteTask = (id: string) => {
-    console.log(id);
-
-    const remainTasks = tasks.filter((task) => task.id !== id);
-    localStorage.setItem("taskMG", JSON.stringify(remainTasks));
-    setTasks(remainTasks);
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const remainTasks = tasks.filter((task) => task.id !== id);
+        localStorage.setItem("taskMG", JSON.stringify(remainTasks));
+        setTasks(remainTasks);
+        Swal.fire("Deleted!", "Your file has been deleted.", "success");
+      }
+    });
   };
   return (
     <main>

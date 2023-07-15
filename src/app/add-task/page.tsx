@@ -6,7 +6,8 @@ import { getSnapshot } from "mobx-state-tree";
 
 const page = () => {
   const [loading, setLoading] = useState<boolean>(false);
-  const handleAddTask = (event: React.FormEvent) => {
+  const handleAddTask = (event: React.SyntheticEvent) => {
+    setLoading(true);
     const taskData = localStorage.getItem("taskMG");
     if (!taskData) {
       localStorage.setItem("taskMG", JSON.stringify([]));
@@ -22,6 +23,10 @@ const page = () => {
     const alltask = [...preTaskArr, newTask];
 
     localStorage.setItem("taskMG", JSON.stringify(alltask));
+    setTimeout(() => {
+      setLoading(false);
+      form.reset();
+    }, 500);
   };
   return (
     <div>
