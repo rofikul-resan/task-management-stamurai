@@ -23,6 +23,14 @@ export default function Home() {
     localStorage.setItem("taskMG", JSON.stringify(updateAllTasks));
     console.log(targetTask, remain);
   };
+
+  const deleteTask = (id: string) => {
+    console.log(id);
+
+    const remainTasks = tasks.filter((task) => task.id !== id);
+    localStorage.setItem("taskMG", JSON.stringify(remainTasks));
+    setTasks(remainTasks);
+  };
   return (
     <main>
       <div className="grid grid-cols-3 gap-5 my-6 md:w-10/12 mx-auto">
@@ -60,7 +68,12 @@ export default function Home() {
                   Completed
                 </button>
               )}
-              <button className="btn btn-warning">Delete</button>
+              <button
+                onClick={() => deleteTask(task.id)}
+                className="btn btn-warning"
+              >
+                Delete
+              </button>
             </div>
           )
         )}
