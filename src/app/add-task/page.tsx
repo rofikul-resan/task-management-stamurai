@@ -1,16 +1,27 @@
 "use client";
-
-import { log } from "console";
 import React, { useState } from "react";
 import { Puff, RotatingLines } from "react-loader-spinner";
+import TaskStore from "../store/taskStore";
+import { getSnapshot } from "mobx-state-tree";
 
 const page = () => {
   const [loading, setLoading] = useState<boolean>(false);
-  const handleAddTask = (event: React.FormEvent<HTMLInputElement>) => {
+  const handleAddTask = (event: React.FormEvent) => {
+    const taskData = localStorage.getItem("taskMG");
+    if (!taskData) {
+      localStorage.setItem("taskMG", JSON.stringify([]));
+    }
+    const preTask: string = localStorage.getItem("taskMG");
     event.preventDefault();
     const form = event.target;
     const name: string = form.name.value;
-    console.log(name);
+    const status: string = form.status.value;
+    const description: string = form.description.value;
+    const newTask = { name, status, description, id: String(Date.now()) };
+    const preTaskArr = JSON.parse(preTask);
+    const alltask = [...preTaskArr, newTask];
+
+    localStorage.setItem("taskMG", JSON.stringify(alltask));
   };
   return (
     <div>
